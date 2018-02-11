@@ -34,17 +34,6 @@ public class NetworkUtils {
 
     private static final String TAG = NetworkUtils.class.getSimpleName();
 
-    private static URL createUrl(String stringUrl) {
-        URL url = null;
-        try {
-            url = new URL(stringUrl);
-        } catch (MalformedURLException e) {
-            Log.e(TAG, "Problem building the URL ", e);
-        }
-        return url;
-
-    }
-
 
 //    private static final String Authority = "api.themoviedb.org";
 //

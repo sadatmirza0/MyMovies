@@ -47,9 +47,6 @@ public class MainActivity extends AppCompatActivity {
         new GithubQueryTask().execute();
     }
 
-    private void makeGithubSearchQuery() {
-    }
-
     public class GithubQueryTask extends AsyncTask<Void, Void, Movie[]> {
 
         private final String LOG_TAG = GithubQueryTask.class.getSimpleName();
