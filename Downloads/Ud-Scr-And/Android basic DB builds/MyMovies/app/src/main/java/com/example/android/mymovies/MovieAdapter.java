@@ -23,7 +23,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     Context context;
     Activity activity;
 
-    public MovieAdapter(Activity activity, View view, Context context) {
+    public MovieAdapter() {
         this.context = context;
         this.view = view;
         this.activity = activity;

@@ -8,8 +8,7 @@
     android:layout_margin="4dp"
     android:background="?attr/selectableItemBackground"
     android:elevation="8dp"
-    android:transitionName="transition"
-    app:cardCornerRadius="4dp">
+    android:transitionName="transition">
 
     <LinearLayout
         android:layout_width="match_parent"

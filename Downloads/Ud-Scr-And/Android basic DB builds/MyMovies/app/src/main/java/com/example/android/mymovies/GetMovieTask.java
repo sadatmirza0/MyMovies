@@ -1,5 +1,8 @@
 package com.example.android.mymovies;
 
+import android.app.Activity;
+import android.content.Context;
+import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -11,28 +14,34 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-
-import static com.example.android.mymovies.MainActivity.movieDetails;
-
 /**
  * Created by sadat on 2/11/18.
  */
 
 public class GetMovieTask extends AsyncTask<Void, Void, Movie[]> {
-
     private final String LOG_TAG = GetMovieTask.class.getSimpleName();
+    Activity activity;
+    ConnectivityManager ConnectivityManager;
     HttpURLConnection urlConnection = null;
     BufferedReader reader = null;
     // Will contain the raw JSON response as a string.
     String movieinfo = null;
 
-    @Override
+    Movie[] moviesList = new Movie[20];
+
+   /* @Override
     protected void onPostExecute(Movie[] movies) {
         return;
+    }*/
+
+    @Override
+    protected void onPostExecute(Movie[] movies) {
+
     }
 
     private Movie[] getmovieData(String movieInfo)
@@ -52,9 +61,9 @@ public class GetMovieTask extends AsyncTask<Void, Void, Movie[]> {
             String movietitle = currentMovie.getString(MDB_TITLE);
             String moviePosterendURL = currentMovie.getString(MDB_POSTER);
             String moviePosterURL = baseURL + moviePosterendURL;
-            movieDetails[i] = new Movie(movietitle, moviePosterURL);
+            moviesList[i] = new Movie(movietitle, moviePosterURL);
         }
-        return movieDetails;
+        return moviesList;
     }
 
     // COMPLETED (2) Override the doInBackground method to perform the query. Return the results. (Hint: You've already written the code to perform the query)
