@@ -16,6 +16,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import static com.example.android.mymovies.MainActivity.movieDetails;
+
 /**
  * Created by sadat on 2/11/18.
  */
@@ -42,14 +44,15 @@ public class GetMovieTask extends AsyncTask<Void, Void, Movie[]> {
 
         JSONObject moviejson = new JSONObject(movieInfo);
         JSONArray movieArray = moviejson.getJSONArray(MDB_RESULT);
-        String baseURL = "http://image.tmdb.org/t/p/w185/";
-        Movie[] movieDetails = new Movie[10];
-        for (int i = 0; i < 10; i++) {
+        String baseURL = "http://image.tmdb.org/t/p/w500/";
+        for (int i = 0; i < 20; i++) {
             JSONObject currentMovie = movieArray.getJSONObject(i);
+            int movieID = Integer.parseInt(currentMovie.getString("id"));
+            String tempbackDropImage = baseURL + currentMovie.getString("backdrop_path");
             String movietitle = currentMovie.getString(MDB_TITLE);
             String moviePosterendURL = currentMovie.getString(MDB_POSTER);
             String moviePosterURL = baseURL + moviePosterendURL;
-            movieDetails[i] = new Movie(moviePosterURL, movietitle);
+            movieDetails[i] = new Movie(movietitle, moviePosterURL);
         }
         return movieDetails;
     }

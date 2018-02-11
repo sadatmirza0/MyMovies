@@ -5,10 +5,13 @@ import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.GridView;
 import android.widget.TextView;
 import java.io.BufferedReader;
@@ -27,12 +30,32 @@ import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static Movie[] movieDetails = new Movie[20];
+    RecyclerView mRecyclerView;
+    MovieAdapter mMovieAdapter;
+    Context context;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         GetMovieTask task = new GetMovieTask();
         task.execute();
+
+        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+
+        GridLayoutManager layoutManager = new GridLayoutManager(this, GridLayoutManager.DEFAULT_SPAN_COUNT, false);
+        mRecyclerView.setLayoutManager(layoutManager);
+
+        mMovieAdapter = new MovieAdapter();
+
+        mRecyclerView.setAdapter(mMovieAdapter);
+
+        loadMovieData();
+    }
+
+    private void loadMovieData() {
+        new GetMovieTask().execute();
     }
 }
 

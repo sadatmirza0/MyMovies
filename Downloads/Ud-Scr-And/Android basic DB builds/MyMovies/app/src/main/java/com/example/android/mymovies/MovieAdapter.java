@@ -1,5 +1,6 @@
 package com.example.android.mymovies;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -7,15 +8,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.squareup.picasso.Picasso;
+
+import java.util.List;
+
 /**
  * Created by sadat on 2/11/18.
  */
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
 
-    private String[] mMovieData;
+    public View view;
+    List<Movie> mMovieData;
+    Context context;
+    Activity activity;
 
-    public MovieAdapter() {
+    public MovieAdapter(Activity activity, View view, Context context) {
+        this.context = context;
+        this.view = view;
+        this.activity = activity;
     }
 
     @Override
@@ -29,29 +40,25 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     }
 
     @Override
-    public void onBindViewHolder(MovieViewHolder movieAdapterViewHolder, int position) {
-        String MovieForThisDay = mMovieData[position];
-        movieAdapterViewHolder.mImageView.setImageResource(Integer.parseInt(MovieForThisDay));
+    public void onBindViewHolder(final MovieViewHolder holder, int position) {
+        Picasso.with(this.context).load(mMovieData.get(position).movieImage).into(holder.mIView);
     }
 
     @Override
     public int getItemCount() {
         if (mMovieData == null) return 0;
-        return mMovieData.length;
-    }
-
-    public void setMovieData(String[] movieData) {
-        mMovieData = movieData;
-        notifyDataSetChanged();
+        return mMovieData.size();
     }
 
     public class MovieViewHolder extends RecyclerView.ViewHolder {
 
-        public final ImageView mImageView;
+        public final ImageView mIView;
+        View mView;
 
         public MovieViewHolder(View view) {
             super(view);
-            mImageView = (ImageView) (view.findViewById(R.id.image_item));
+            mView = view;
+            mIView = (ImageView) view.findViewById(R.id.movie_poster_image);
         }
 /*        void bind(int gridIndex){
             mImageView.setId(Integer.parseInt(String.valueOf(gridIndex)));
