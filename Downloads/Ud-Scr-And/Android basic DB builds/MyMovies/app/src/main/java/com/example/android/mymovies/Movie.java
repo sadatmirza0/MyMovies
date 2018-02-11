@@ -4,6 +4,7 @@ import android.widget.TextView;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 /**
  * Created by sadat on 2/11/18.
@@ -13,9 +14,8 @@ public class Movie {
     String movieImage;
     String movieTitle;
 
-    public Movie(String image, String title){
-        this.movieImage = image;
-        this.movieTitle = title;
+    Movie(String moviePosterURL, String movietitle) {
+        this.movieImage = moviePosterURL;
+        this.movieTitle = movietitle;
     }
-
 }

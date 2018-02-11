@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,92 +32,109 @@ import java.util.Scanner;
  */
 
 public class NetworkUtils {
+    public static URL githubSearchUrl = null;
+    static String S1 = "https://api.themoviedb.org/3/movie/popular?api_key=e6119fc0e6963d6ee2300a97c6d1cf22";
 
-    private static final String TAG = NetworkUtils.class.getSimpleName();
-
-
-//    private static final String Authority = "api.themoviedb.org";
-//
-//    private static final String BASE_URL = ("https://"+Authority);
-//
-//    final static String BASE_PATH = "/3/movie/";
-//
-//    final static String PATH = "popular?";
-//
-//    final static String API_KEY = "api_key=";
-//
-//    final static String KEY = "e6119fc0e6963d6ee2300a97c6d1cf22";
-//
-//    //URL PopularURL = new URL("http://api.themoviedb.org/3/movie/popular?api_key=" + NetworkUtils.KEY); //sort by popularity by default
-//
-//    public static URL buildUrl(String popularquery) {
-//        Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-//                .appendQueryParameter(BASE_PATH, PATH)
-//                .appendQueryParameter(API_KEY, KEY)
-//                .build();
-//
-//        URL url = null;
-//        try {
-//            url = new URL(builtUri.toString());
-//        } catch (MalformedURLException e) {
-//            e.printStackTrace();
-//        }
-//
-//        Log.v(TAG, "Built URI " + url);
-//
-//        return url;
-//    }
-//
-//    public NetworkUtils() throws MalformedURLException {
-//    }
-
-    /**
-     * This method returns the entire result from the HTTP response.
-     *
-     * @param url The URL to fetch the HTTP response from.
-     * @return The contents of the HTTP response.
-     * @throws IOException Related to network and stream reading
-     */
-
-    public static String getResponseFromHttpUrl(URL url) throws IOException {
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+    static {
         try {
-            InputStream in = urlConnection.getInputStream();
-
-            Scanner scanner = new Scanner(in);
-            scanner.useDelimiter("\\A");
-
-            boolean hasInput = scanner.hasNext();
-            if (hasInput) {
-                return scanner.next();
-            } else {
-                return null;
-            }
-        } finally {
-            urlConnection.disconnect();
+            githubSearchUrl = new URL(S1);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
         }
     }
 
-//    private static List<String> extractMoviesFromJson(String moviesJSON){
-//        if (TextUtils.isEmpty(moviesJSON)) {
-//            return null;
-//        }
-//        List<String> Movies = new ArrayList<>();
-//
-//        try {
-//
-//            // Create a JSONObject from the JSON response string
-//            JSONObject baseJsonResponse = new JSONObject(moviesJSON);
-//            JSONArray baseArray = baseJsonResponse.getJSONArray("results");
-//            for (int i = 0; i < 20; i++) {
-//                String Jobj = baseArray.getString(Integer.parseInt("backdrop_path"));
-//                Movies.add(Jobj);
-//            }
-//
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//        return Movies;
-//    }
+    public class GetMovieTask extends AsyncTask<Void, Void, Movie[]> {
 
+        private final String LOG_TAG = GetMovieTask.class.getSimpleName();
+        HttpURLConnection urlConnection = null;
+        BufferedReader reader = null;
+        // Will contain the raw JSON response as a string.
+        String movieinfo = null;
+
+        @Override
+        protected void onPostExecute(Movie[] movies) {
+            super.onPostExecute(movies);
+        }
+
+        private Movie[] getmovieData(String movieInfo)
+                throws JSONException {
+
+            final String MDB_RESULT = "results";
+            final String MDB_TITLE = "title";
+            final String MDB_POSTER = "poster_path";
+
+            JSONObject moviejson = new JSONObject(movieInfo);
+            JSONArray movieArray = moviejson.getJSONArray(MDB_RESULT);
+            String baseURL = "http://image.tmdb.org/t/p/w185/";
+            Movie[] movieDetails = new Movie[10];
+            for (int i = 0; i < 10; i++) {
+                JSONObject currentMovie = movieArray.getJSONObject(i);
+                String movietitle = currentMovie.getString(MDB_TITLE);
+                String moviePosterendURL = currentMovie.getString(MDB_POSTER);
+                String moviePosterURL = baseURL + moviePosterendURL;
+                movieDetails[i] = new Movie(moviePosterURL, movietitle);
+            }
+            return movieDetails;
+        }
+
+        // COMPLETED (2) Override the doInBackground method to perform the query. Return the results. (Hint: You've already written the code to perform the query)
+        @Override
+        protected Movie[] doInBackground(Void... params) {
+            try {
+
+                URL url = new URL("https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=e6119fc0e6963d6ee2300a97c6d1cf22");
+                String movieDbUrl = url.toString();
+                Log.v(LOG_TAG, movieDbUrl);
+                // Create the request to OpenWeatherMap, and open the connection
+                URLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.connect();
+
+                // Read the input stream into a String
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuilder buffer = new StringBuilder();
+                if (inputStream == null) {
+                    // Nothing to do.
+                    return null;
+                }
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                    // But it does make debugging a *lot* easier if you print out the completed
+                    // buffer for debugging.
+                    buffer.append(line + "\n");
+                }
+
+                if (buffer.length() == 0) {
+                    // Stream was empty.  No point in parsing.
+                    return null;
+                }
+                movieinfo = buffer.toString();
+                Log.v(LOG_TAG, movieinfo);
+            } catch (IOException e) {
+                Log.e("PlaceholderFragment", "Error ", e);
+                // If the code didn't successfully get the weather data, there's no point in attemping
+                // to parse it.
+                return null;
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (final IOException e) {
+                        Log.e("PlaceholderFragment", "Error closing stream", e);
+                    }
+                }
+            }
+            try {
+                return getmovieData(movieinfo);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
 }
